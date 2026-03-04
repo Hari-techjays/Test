@@ -1,5 +1,8 @@
+import json
 import os
 import tempfile
+
+import numpy as np
 import pandas as pd
 import pytest
 import torch
@@ -60,3 +63,60 @@ class TestTrainFunction:
             )
             assert args is not None
             assert args.num_train_epochs == 1
+
+
+class TestTuning:
+    def test_objective_returns_float(self):
+        from unittest.mock import MagicMock, patch
+
+        from src.model.tune import create_objective
+
+        objective = create_objective(
+            train_texts=["good"] * 8,
+            train_labels=["positive"] * 8,
+            val_texts=["bad"] * 4,
+            val_labels=["negative"] * 4,
+            max_length=32,
+            n_epochs_max=1,
+        )
+        assert callable(objective)
+
+    def test_suggest_hyperparameters(self):
+        from unittest.mock import MagicMock
+
+        from src.model.tune import suggest_hyperparameters
+
+        trial = MagicMock()
+        trial.suggest_float.return_value = 3e-5
+        trial.suggest_categorical.return_value = 16
+        trial.suggest_int.return_value = 100
+
+        params = suggest_hyperparameters(trial)
+        assert "learning_rate" in params
+        assert "batch_size" in params
+        assert "warmup_steps" in params
+        assert "num_epochs" in params
+
+
+class TestEvaluate:
+    def test_compute_classification_report(self):
+        from src.model.evaluate import compute_classification_report
+
+        y_true = [0, 1, 2, 0, 1, 2]
+        y_pred = [0, 1, 2, 0, 2, 1]
+        report = compute_classification_report(y_true, y_pred)
+        assert "accuracy" in report
+        assert isinstance(report, dict)
+
+    def test_save_metrics_creates_file(self):
+        from src.model.evaluate import save_metrics
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            metrics = {"accuracy": 0.85, "f1_macro": 0.83}
+            path = os.path.join(tmpdir, "metrics.json")
+            save_metrics(metrics, path)
+            assert os.path.exists(path)
+
+            with open(path) as f:
+                loaded = json.load(f)
+            assert loaded["accuracy"] == 0.85
