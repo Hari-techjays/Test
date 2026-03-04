@@ -1,0 +1,41 @@
+# dvc.yaml
+stages:
+  ingest:
+    cmd: python -m src.data.ingest
+    deps:
+      - src/data/ingest.py
+    outs:
+      - data/raw/reviews.csv
+
+  preprocess:
+    cmd: python -m src.data.preprocess
+    deps:
+      - src/data/preprocess.py
+      - data/raw/reviews.csv
+    outs:
+      - data/processed/train.parquet
+      - data/processed/val.parquet
+      - data/processed/test.parquet
+
+  train:
+    cmd: python -m src.model.train
+    deps:
+      - src/model/train.py
+      - data/processed/train.parquet
+      - data/processed/val.parquet
+    outs:
+      - models/sentiment:
+          cache: false
+    metrics:
+      - models/sentiment/test_metrics.json:
+          cache: false
+
+  evaluate:
+    cmd: python -m src.model.evaluate
+    deps:
+      - src/model/evaluate.py
+      - models/sentiment
+      - data/processed/test.parquet
+    metrics:
+      - models/sentiment/test_metrics.json:
+          cache: false
