@@ -1,0 +1,67 @@
+# .github/workflows/train.yml
+name: Training Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      num_epochs:
+        description: "Number of training epochs"
+        default: "3"
+        type: string
+      batch_size:
+        description: "Training batch size"
+        default: "16"
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - "src/model/**"
+      - "src/data/**"
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements-train.txt
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Download data
+        run: python -m src.data.ingest
+
+      - name: Preprocess data
+        run: python -m src.data.preprocess
+
+      - name: Train model
+        run: |
+          python -m src.model.train \
+            --num_epochs ${{ github.event.inputs.num_epochs || '3' }} \
+            --batch_size ${{ github.event.inputs.batch_size || '16' }}
+
+      - name: Evaluate model
+        run: python -m src.model.evaluate
+
+      - name: Upload model metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-metrics
+          path: models/sentiment/test_metrics.json
