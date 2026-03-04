@@ -3,7 +3,6 @@ import json
 import logging
 import os
 
-import mlflow
 import torch
 from transformers import (
     AutoModelForSequenceClassification,
@@ -12,6 +11,8 @@ from transformers import (
     Trainer,
     TrainingArguments,
 )
+
+import mlflow
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -121,7 +122,8 @@ def train(
 
     model = create_model()
     training_args = get_training_args(
-        output_dir=output_dir, num_epochs=num_epochs, batch_size=batch_size, learning_rate=learning_rate,
+        output_dir=output_dir, num_epochs=num_epochs,
+        batch_size=batch_size, learning_rate=learning_rate,
     )
 
     trainer = Trainer(

@@ -4,13 +4,13 @@ import json
 import logging
 import os
 
-import mlflow
 import pandas as pd
 import torch
 from sklearn.metrics import classification_report, confusion_matrix
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-from src.model.train import DEFAULT_DATA_DIR, DEFAULT_OUTPUT_DIR, ID2LABEL, LABEL2ID
+import mlflow
+from src.model.train import DEFAULT_DATA_DIR, DEFAULT_OUTPUT_DIR, LABEL2ID
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

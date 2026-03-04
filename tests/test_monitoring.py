@@ -1,6 +1,3 @@
-import numpy as np
-import pandas as pd
-import pytest
 
 
 class TestDriftDetection:
@@ -20,7 +17,7 @@ class TestDriftDetection:
         reference = ["word " * 10] * 100
         current = ["word " * 10] * 50
         result = detect_length_drift(reference, current)
-        assert result["drift_detected"] == False
+        assert not result["drift_detected"]
 
     def test_detect_length_drift_with_drift(self):
         from src.monitoring.drift import detect_length_drift
@@ -28,7 +25,7 @@ class TestDriftDetection:
         reference = ["short"] * 100
         current = ["this is a very long text with many many words " * 10] * 50
         result = detect_length_drift(reference, current)
-        assert result["drift_detected"] == True
+        assert result["drift_detected"]
 
     def test_detect_vocab_drift_no_drift(self):
         from src.monitoring.drift import detect_vocab_drift

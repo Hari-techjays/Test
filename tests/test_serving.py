@@ -1,5 +1,10 @@
+from unittest.mock import MagicMock, patch
+
 import pytest
+from fastapi.testclient import TestClient
 from pydantic import ValidationError
+
+import src.serving.app as serving_app_module
 
 
 class TestSchemas:
@@ -37,12 +42,6 @@ class TestSchemas:
 
         with pytest.raises(ValidationError):
             BatchPredictRequest(texts=[])
-
-
-from unittest.mock import MagicMock, patch
-
-import src.serving.app as serving_app_module
-from fastapi.testclient import TestClient
 
 
 class TestApp:

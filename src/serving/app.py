@@ -76,7 +76,9 @@ def predict_sentiment(text: str) -> PredictResponse:
 
     PREDICTION_LABELS.labels(label=label).inc()
 
-    return PredictResponse(label=label, confidence=round(confidence, 4), probabilities=probabilities)
+    return PredictResponse(
+        label=label, confidence=round(confidence, 4), probabilities=probabilities
+    )
 
 
 @app.get("/health", response_model=HealthResponse)

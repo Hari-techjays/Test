@@ -2,13 +2,13 @@
 
 import logging
 import os
-from typing import Callable
+from collections.abc import Callable
 
-import mlflow
 import optuna
 import pandas as pd
 from transformers import Trainer
 
+import mlflow
 from src.model.train import (
     DEFAULT_DATA_DIR,
     DEFAULT_OUTPUT_DIR,

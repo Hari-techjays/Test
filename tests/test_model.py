@@ -2,11 +2,6 @@ import json
 import os
 import tempfile
 
-import numpy as np
-import pandas as pd
-import pytest
-import torch
-
 
 class TestSentimentDataset:
     def test_dataset_length(self):
@@ -55,8 +50,8 @@ class TestTrainFunction:
         from src.model.train import SentimentDataset, create_model, get_training_args
         texts = ["good product"] * 4
         labels = ["positive"] * 4
-        ds = SentimentDataset(texts, labels, max_length=32)
-        model = create_model(num_labels=3)
+        SentimentDataset(texts, labels, max_length=32)
+        create_model(num_labels=3)
         with tempfile.TemporaryDirectory() as tmpdir:
             args = get_training_args(
                 output_dir=tmpdir, num_epochs=1, batch_size=2, learning_rate=5e-5
@@ -67,7 +62,6 @@ class TestTrainFunction:
 
 class TestTuning:
     def test_objective_returns_float(self):
-        from unittest.mock import MagicMock, patch
 
         from src.model.tune import create_objective
 
